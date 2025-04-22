@@ -160,7 +160,7 @@
 			});
 
 			const read_clipboard =
-				navigator.clipboard.readText
+				navigator.clipboard?.readText
 					? () => navigator.clipboard.readText()
 					: () => Promise.resolve(prompt("Please paste the bookmarklet URL"));
 			let paste_timeout;
@@ -189,6 +189,10 @@
 
 			let copy_timeout;
 			copy.addEventListener("click", () => {
+				if (!navigator.clipboard?.writeText) {
+					alert("Use the bookmarklet link to copy the bookmarklet URL to your clipboard");
+					return;
+				}
 				const url = get_code_encoded();
 				navigator.clipboard.writeText(url).then(() => {
 					clearTimeout(copy_timeout);
