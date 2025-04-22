@@ -58,9 +58,32 @@
 				overflow: auto;
 			}
 		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"codemirror": "https://unpkg.com/codemirror@6.0.1/dist/index.js",
+					"@codemirror/view": "https://unpkg.com/@codemirror/view@6.36.5/dist/index.js",
+					"@codemirror/state": "https://unpkg.com/@codemirror/state@6.5.2/dist/index.js",
+					"@codemirror/language": "https://unpkg.com/@codemirror/language@6.11.0/dist/index.js",
+					"@codemirror/commands": "https://unpkg.com/@codemirror/commands@6.8.1/dist/index.js",
+					"@codemirror/search": "https://unpkg.com/@codemirror/search@6.5.10/dist/index.js",
+					"@codemirror/autocomplete": "https://unpkg.com/@codemirror/autocomplete@6.18.6/dist/index.js",
+					"@codemirror/lint": "https://unpkg.com/@codemirror/lint@6.8.5/dist/index.js",
+					"@codemirror/lang-javascript": "https://unpkg.com/@codemirror/lang-javascript@6.2.3/dist/index.js",
+					"crelt": "https://unpkg.com/crelt@1.0.6/index.js?module",
+					"style-mod": "https://unpkg.com/style-mod@4.1.2/src/style-mod.js?module",
+					"w3c-keyname": "https://unpkg.com/w3c-keyname@2.2.8/index.js",
+					"@marijn/find-cluster-break": "https://unpkg.com/@marijn/find-cluster-break@1.0.2/src/index.js?module",
+					"@lezer/common": "https://unpkg.com/@lezer/common@1.2.3/dist/index.js?module",
+					"@lezer/highlight": "https://unpkg.com/@lezer/highlight@1.2.1/dist/index.js",
+					"@lezer/lr": "https://unpkg.com/@lezer/lr@1.4.2/dist/index.js",
+					"@lezer/javascript": "https://unpkg.com/@lezer/javascript@1.5.1/dist/index.js"
+				}
+			}
+		</script>
 		<script type="module">
-			import {EditorView, basicSetup} from "https://www.unpkg.com/codemirror?module";
-			import {javascript} from "https://www.unpkg.com/@codemirror/lang-javascript@^6.0.0?module";
+			import {EditorView, basicSetup} from "codemirror";
+			import {javascript} from "@codemirror/lang-javascript";
 
 			function encode_code(code_str) {
 				let wrapped_code_str;
