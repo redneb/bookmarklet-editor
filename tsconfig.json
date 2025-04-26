@@ -3,6 +3,8 @@
 		"target": "ESNext",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"noEmit": true,
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js",
 
 		"module": "ESNext",
 		"moduleResolution": "bundler",

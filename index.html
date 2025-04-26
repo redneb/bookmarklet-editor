@@ -6,31 +6,5 @@
 		<title>Bookmarklet editor</title>
 		<script type="module" src="/src/index.ts"></script>
 	</head>
-	<body class="loading">
-		<div class="loading">Loading...</div>
-		<div class="import_pane">
-			<button class="paste">Import from clipboard</button>
-			<span class="paste_status"></span>
-			<span class="gap"></span>
-			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/">GitHub</a>
-			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/blob/main/README.md">Help</a>
-		</div>
-		<label class="editor_pane">
-			<div>Code: (<a class="clear">clear</a>)</div>
-			<div class="editor_wrapper"></div>
-		</label>
-		<div>
-			<label>
-				Code wrapper:
-				<select class="wrapping_mode">
-					<option value="block">Block (recommended)</option>
-					<option value="function">Function (for older browsers)</option>
-					<option value="arrow_function">Arrow function</option>
-				</select>
-			</label>
-			<label>Name: <input class="link_name" value="bookmarklet"></label>
-			<a class="link"></a>
-		</div>
-		<div><button class="copy">Export to clipboard (copy)</button> <span class="copy_status"></span></div>
-	</body>
+	<body class="loading"><div id="app"></div></body>
 </html>

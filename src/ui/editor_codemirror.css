@@ -1,0 +1,8 @@
+.cm-editor {
+	cursor: initial;
+	height: 100%;
+}
+
+.cm-scroller {
+	overflow: auto;
+}
