@@ -1,259 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Bookmarklet editor</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<style>
-			html {
-				width: 100%;
-				height: 100%;
-				overflow: hidden;
-				display: flex;
-				flex-direction: column;
-			}
-			body {
-				min-height: 0;
-				flex-grow: 1;
-				display: flex;
-				flex-direction: column;
-			}
-			body:not(.loading) > .loading {
-				display: none;
-			}
-			body.loading > :not(.loading) {
-				display: none;
-			}
-			.gap {
-				flex-grow: 1;
-				margin-left: 0;
-			}
-			.import-pane {
-				display: flex;
-				align-items: center;
-			}
-			.import-pane :nth-child(n+2) {
-				margin-left: 1ex;
-			}
-			.editor-pane {
-				min-height: 0;
-				flex-grow: 1;
-				display: flex;
-				flex-direction: column;
-			}
-			#clear{
-				color: -webkit-link;
-				color: -moz-hyperlinkText;
-				cursor: pointer;
-			}
-			#editor-wrapper {
-				min-height: 0;
-				flex-grow: 1;
-			}
-			.cm-editor {
-				cursor: initial;
-				height: 100%;
-			}
-			.cm-scroller {
-				overflow: auto;
-			}
-		</style>
-		<script type="importmap">
-			{
-				"imports": {
-					"codemirror": "https://unpkg.com/codemirror@6.0.1/dist/index.js",
-					"@codemirror/view": "https://unpkg.com/@codemirror/view@6.36.5/dist/index.js",
-					"@codemirror/state": "https://unpkg.com/@codemirror/state@6.5.2/dist/index.js",
-					"@codemirror/language": "https://unpkg.com/@codemirror/language@6.11.0/dist/index.js",
-					"@codemirror/commands": "https://unpkg.com/@codemirror/commands@6.8.1/dist/index.js",
-					"@codemirror/search": "https://unpkg.com/@codemirror/search@6.5.10/dist/index.js",
-					"@codemirror/autocomplete": "https://unpkg.com/@codemirror/autocomplete@6.18.6/dist/index.js",
-					"@codemirror/lint": "https://unpkg.com/@codemirror/lint@6.8.5/dist/index.js",
-					"@codemirror/lang-javascript": "https://unpkg.com/@codemirror/lang-javascript@6.2.3/dist/index.js",
-					"crelt": "https://unpkg.com/crelt@1.0.6/index.js?module",
-					"style-mod": "https://unpkg.com/style-mod@4.1.2/src/style-mod.js?module",
-					"w3c-keyname": "https://unpkg.com/w3c-keyname@2.2.8/index.js",
-					"@marijn/find-cluster-break": "https://unpkg.com/@marijn/find-cluster-break@1.0.2/src/index.js?module",
-					"@lezer/common": "https://unpkg.com/@lezer/common@1.2.3/dist/index.js?module",
-					"@lezer/highlight": "https://unpkg.com/@lezer/highlight@1.2.1/dist/index.js",
-					"@lezer/lr": "https://unpkg.com/@lezer/lr@1.4.2/dist/index.js",
-					"@lezer/javascript": "https://unpkg.com/@lezer/javascript@1.5.1/dist/index.js"
-				}
-			}
-		</script>
-		<script type="module">
-			import {EditorView, basicSetup} from "codemirror";
-			import {javascript} from "@codemirror/lang-javascript";
-
-			function encode_code(code_str) {
-				let wrapped_code_str;
-				switch (wrapping_mode.value) {
-					case "block": {
-						wrapped_code_str = `{\n${code_str}\n}`;
-						break;
-					}
-					case "function": {
-						wrapped_code_str = `(function(){\n${code_str}\n})()`;
-						break;
-					}
-					case "arrow_function": {
-						wrapped_code_str = `(()=>{\n${code_str}\n})()`;
-						break;
-					}
-				}
-				const url = "javascript:" + encodeURIComponent(wrapped_code_str);
-				return url;
-			}
-
-			function decode_code(url) {
-				if (!url || !url.startsWith("javascript:"))
-					throw new Error("Not a javascript url");
-				const wrapped_code_str = decodeURIComponent(url.substring("javascript:".length));
-				const m1 = /^\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*$/s.exec(wrapped_code_str);
-				const m2 = /^\s*\(\s*function\s*\(\s*\)\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*\)\s*\(\s*\)\s*$/s.exec(wrapped_code_str);
-				const m3 = /^\s*\(\s*\(\s*\)\s*=>\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*\)\s*\(\s*\)\s*$/s.exec(wrapped_code_str);
-				const m = m1 || m2 || m3;
-				let code_str, warning;
-				if (m)
-					code_str = m[1];
-				else {
-					code_str = wrapped_code_str;
-					warning: "Could not find wrapper function, imported raw code";
-				}
-				return {
-					code_str,
-					mode: m1 ? "block" : m2 ? "function" : m3 ? "arrow_function" : undefined,
-					warning,
-				};
-			}
-
-			const editor_wrapper = document.querySelector("#editor-wrapper");
-			const editor = new EditorView({
-				extensions: [
-					basicSetup,
-					javascript(),
-					EditorView.updateListener.of((view_update) => {
-						if (view_update.docChanged)
-							on_code_str_updated();
-					}),
-				],
-				parent: editor_wrapper,
-			});
-
-			function set_code(str) {
-				editor.update([
-					editor.viewState.state.update({changes: {from: 0, to: editor.viewState.state.doc.length, insert: str}}),
-				]);
-			}
-
-			function get_code() {
-				return editor.viewState.state.doc.toString();
-			}
-
-			function get_code_encoded() {
-				return encode_code(get_code());
-			}
-
-			clear.addEventListener("click", (ev) => {
-				ev.preventDefault();
-				set_code("");
-			});
-
-			const read_clipboard =
-				navigator.clipboard?.readText
-					? () => navigator.clipboard.readText()
-					: () => Promise.resolve(prompt("Please paste the bookmarklet URL"));
-			let paste_timeout;
-			paste.addEventListener("click", () => {
-				read_clipboard().then((url) => {
-					if (url === null) return;
-					clearTimeout(paste_timeout);
-					paste_status.textContent = "";
-					const {code_str, warning, mode} = decode_code(url);
-					if (mode)
-						wrapping_mode.value = mode;
-					if (warning)
-						paste_status.textContent = warning;
-					else {
-						paste_status.textContent = "Success!";
-						paste_timeout = setTimeout(() => {
-							paste_status.textContent = "";
-						}, 1_000);
-					}
-					set_code(code_str);
-				}).catch((err) => {
-					console.error(err);
-					paste_status.textContent = `Failed (${err.message})`;
-				});
-			});
-
-			let copy_timeout;
-			copy.addEventListener("click", () => {
-				if (!navigator.clipboard?.writeText) {
-					alert("Use the bookmarklet link to copy the bookmarklet URL to your clipboard");
-					return;
-				}
-				const url = get_code_encoded();
-				navigator.clipboard.writeText(url).then(() => {
-					clearTimeout(copy_timeout);
-					copy_timeout = setTimeout(() => {
-						copy_status.textContent = "";
-					}, 1_000);
-					copy_status.textContent = "Success!";
-				}).catch((err) => {
-					console.error(err);
-					copy_status.textContent = `Failed (${err.message})`;
-				});
-			});
-
-			link_name.addEventListener("input", () => {
-				link.textContent = link_name.value;
-			});
-			function on_code_str_updated() {
-				link.href = get_code_encoded();
-			}
-			wrapping_mode.addEventListener("input", () => {
-				on_code_str_updated();
-			});
-			link.addEventListener("click", (ev) => {
-				if (!confirm("Execute bookmarklet?"))
-					ev.preventDefault();
-			});
-			document.querySelector(".editor-pane").addEventListener("click", (ev) => {
-				if (!editor_wrapper.contains(ev.target) || editor_wrapper === ev.target)
-					editor.focus();
-			});
-
-			link_name.dispatchEvent(new Event("input"));
-			set_code(`const msg = "Bonjour tout le monde";\nalert(msg);\n`);
-			document.body.classList.remove("loading");
-		</script>
+		<title>Bookmarklet editor</title>
+		<script type="module" src="/src/index.ts"></script>
 	</head>
 	<body class="loading">
 		<div class="loading">Loading...</div>
-		<div class="import-pane">
-			<button id="paste">Import from clipboard</button>
-			<span id="paste_status"></span>
+		<div class="import_pane">
+			<button class="paste">Import from clipboard</button>
+			<span class="paste_status"></span>
 			<span class="gap"></span>
 			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/">GitHub</a>
 			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/blob/main/README.md">Help</a>
 		</div>
-		<label class="editor-pane">
-			<div>Code: (<a id="clear">clear</a>)</div>
-			<div id="editor-wrapper"></div>
+		<label class="editor_pane">
+			<div>Code: (<a class="clear">clear</a>)</div>
+			<div class="editor_wrapper"></div>
 		</label>
 		<div>
 			<label>
 				Code wrapper:
-				<select id="wrapping_mode">
+				<select class="wrapping_mode">
 					<option value="block">Block (recommended)</option>
 					<option value="function">Function (for older browsers)</option>
 					<option value="arrow_function">Arrow function</option>
 				</select>
 			</label>
-			<label>Name: <input id="link_name" value="bookmarklet"></label>
-			<a id="link"></a>
+			<label>Name: <input class="link_name" value="bookmarklet"></label>
+			<a class="link"></a>
 		</div>
-		<div><button id="copy">Export to clipboard (copy)</button> <span id="copy_status"></span></div>
+		<div><button class="copy">Export to clipboard (copy)</button> <span class="copy_status"></span></div>
 	</body>
 </html>
