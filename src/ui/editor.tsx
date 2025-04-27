@@ -4,9 +4,10 @@ import {javascript} from "@codemirror/lang-javascript";
 
 import "./editor_codemirror.css";
 import styles from "./editor.module.css";
-import {state, update_state} from "./state";
+import {update_state} from "./state";
 
 let editor: EditorView | undefined;
+let initial_code_text: string | undefined = `const msg = "Bonjour tout le monde";\nalert(msg);\n`;
 
 function on_code_text_updated() {
 	update_state((state) => {
@@ -15,17 +16,21 @@ function on_code_text_updated() {
 }
 
 export function set_code_text(text: string) {
-	if (!editor) throw new Error("Editor not initialized");
-	editor.update([
-		editor.state.update({changes: {from: 0, to: editor.state.doc.length, insert: text}}),
-	]);
+	if (!editor)
+		initial_code_text = text;
+	else {
+		initial_code_text = undefined;
+		editor.update([
+			editor.state.update({changes: {from: 0, to: editor.state.doc.length, insert: text}}),
+		]);
+	}
 }
 
 export const EditorPane: Component = () => {
 	const editor_wrapper = <div class={styles.editor_wrapper}></div> as HTMLElement;
 
 	editor = new EditorView({
-		doc: state.code,
+		doc: initial_code_text,
 		parent: editor_wrapper,
 		extensions: [
 			basicSetup,
@@ -36,6 +41,7 @@ export const EditorPane: Component = () => {
 			}),
 		],
 	});
+	on_code_text_updated();
 
 	const on_clear_click = (ev: MouseEvent) => {
 		ev.preventDefault();

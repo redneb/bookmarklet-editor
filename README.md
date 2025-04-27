@@ -11,3 +11,5 @@ Create or modify bookmarklets. All processing is happening locally in your brows
 0. (Optional) If you are editing an existing bookmarklet, copy the bookmarklet URL to your clipboard and click on `Import from clipboard` in the bookmarklet editor.
 1. Edit the code.
 2. When you are done, either create a bookmark out of the link at the bottom of the editor, or click on `Export to clipboard (copy)`.
+
+You can share the bookmarklet you are editing with others by sharing the URL of the browser tab.

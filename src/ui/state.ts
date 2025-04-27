@@ -5,7 +5,7 @@ import {default_wrapping_mode} from "../constants";
 import {encode_code} from "../util/encode";
 
 export const [state, set_state] = createStore({
-	code: `const msg = "Bonjour tout le monde";\nalert(msg);\n`,
+	code: "",
 	wrapping_mode: default_wrapping_mode,
 	link_name: "bookmarklet",
 });
