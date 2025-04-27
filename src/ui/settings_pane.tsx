@@ -10,11 +10,6 @@ export const SettingsPane: Component = () => {
 			state.wrapping_mode = ev.target.value as WrappingMode;
 		});
 	};
-	const on_link_name_input: JSX.InputEventHandler<HTMLInputElement, InputEvent> = (ev) => {
-		update_state((state) => {
-			state.link_name = ev.target.value;
-		});
-	};
 	const on_link_click: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = (ev) => {
 		if (!confirm("Execute bookmarklet?"))
 			ev.preventDefault();
@@ -30,8 +25,7 @@ export const SettingsPane: Component = () => {
 					<option value="arrow_function">Arrow function</option>
 				</select>
 			</label>
-			<label class={styles.row}>Name:<input value={state.link_name} onInput={on_link_name_input} /></label>
-			<a href={code_encoded()} onClick={on_link_click}>{state.link_name}</a>
+			<a href={code_encoded()} onClick={on_link_click}>bookmarklet</a>
 		</div>
 	);
 };

@@ -7,7 +7,6 @@ import {encode_code} from "../util/encode";
 export const [state, set_state] = createStore({
 	code: "",
 	wrapping_mode: default_wrapping_mode,
-	link_name: "bookmarklet",
 });
 
 export type State = typeof state;
