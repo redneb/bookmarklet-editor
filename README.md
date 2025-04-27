@@ -1,3 +1,5 @@
+<img src="logo.svg" alt="Bookmarklet Editor logo" width="120" height="120" />
+
 # Bookmarklet editor
 
 Create or modify bookmarklets. All processing is happening locally in your browser. No data is sent to the server.
