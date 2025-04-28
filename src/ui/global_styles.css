@@ -8,6 +8,7 @@ html {
 
 body {
 	font-family: sans-serif;
+	background-color: #eee;
 	min-height: 0;
 	flex-grow: 1;
 	display: flex;
@@ -22,4 +23,5 @@ body.loading::before {
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
+	gap: 8px;
 }
