@@ -3,7 +3,7 @@ import {encode_url_params, type UrlParams} from "../util/url_params";
 
 const interval_ms = 100;
 
-type State =
+type UpdaterState =
 	| {
 		status: "idle";
 	}
@@ -18,17 +18,17 @@ type State =
 		next_params?: UrlParams;
 	};
 
-let state: State = {
+let updater_state: UpdaterState = {
 	status: "idle",
 };
 
 async function perform_update() {
-	if (state.status !== "scheduled") {
-		console.error("perform_update: invalid state", state);
+	if (updater_state.status !== "scheduled") {
+		console.error("perform_update: invalid state", updater_state);
 		return;
 	}
-	const params = state.params;
-	state = {status: "updating"};
+	const params = updater_state.params;
+	updater_state = {status: "updating"};
 	const url = new URL(location.href);
 	let new_hash: string;
 	if (params === undefined)
@@ -39,28 +39,28 @@ async function perform_update() {
 		url.hash = new_hash;
 		history.replaceState(null, "", url.href);
 	}
-	if (state.next_params !== undefined)
-		schedule_url_update(state.next_params, false);
-	else
-		state = {status: "idle"};
+	const next_params = updater_state.next_params;
+	updater_state = {status: "idle"};
+	if (next_params !== undefined)
+		schedule_url_update(next_params, false);
 }
 
 export function schedule_url_update(params: UrlParams, immediate: boolean) {
-	switch (state.status) {
+	switch (updater_state.status) {
 		case "idle":
-			state = {
+			updater_state = {
 				status: "scheduled",
 				params,
 				timeout: setTimeout(perform_update, immediate ? 0 : interval_ms),
 			};
 			break;
 		case "scheduled":
-			state.params = params;
+			updater_state.params = params;
 			break;
 		case "updating":
-			state.next_params = params;
+			updater_state.next_params = params;
 			break;
 		default:
-			unreachable(state);
+			unreachable(updater_state);
 	}
 }
