@@ -4,8 +4,10 @@ import {createStore, produce} from "solid-js/store";
 import {default_wrapping_mode} from "../constants";
 import {encode_code} from "../util/encode";
 
+const initial_code_text = `const msg = "Bonjour tout le monde";\nalert(msg);\n`;
+
 export const [state, set_state] = createStore({
-	code: "",
+	code: initial_code_text,
 	wrapping_mode: default_wrapping_mode,
 });
 

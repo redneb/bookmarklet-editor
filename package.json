@@ -15,8 +15,7 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.3",
-    "codemirror": "^6.0.1",
+    "monaco-editor": "^0.52.2",
     "solid-js": "^1.9.5"
   }
 }
