@@ -1,5 +1,6 @@
 import {type Component} from "solid-js";
 
+import styles from "./row.module.css";
 import {code_encoded} from "./state";
 import {auto_clearing_status} from "./auto_clearing_status";
 
@@ -23,7 +24,7 @@ export const ExportPane: Component = () => {
 	};
 
 	return (
-		<div>
+		<div class={styles.row}>
 			<button onclick={on_copy_click}>Export to clipboard (copy)</button>
 			{status.node}
 		</div>
