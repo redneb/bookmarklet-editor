@@ -16,7 +16,7 @@ export const ImportPane: Component = () => {
 			const bookmarklet_url = await read_clipboard();
 			if (bookmarklet_url === null) return;
 			const parsed = parse_bookmarklet_url(bookmarklet_url);
-			status.set(parsed.warning ?? "Success!");
+			status.set("success", parsed.warning ?? "Success!");
 			update_state((state) => {
 				state.wrapping_mode = parsed.mode ?? default_wrapping_mode;
 			});
@@ -24,7 +24,7 @@ export const ImportPane: Component = () => {
 		}
 		catch (err) {
 			console.error(err);
-			status.set(`Failed (${err instanceof Error ? err.message : `${err}`})`);
+			status.set("error", `${err instanceof Error ? err.message : `${err}`}`);
 		}
 	};
 

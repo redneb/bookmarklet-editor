@@ -15,11 +15,11 @@ export const ExportPane: Component = () => {
 		const url = code_encoded();
 		try {
 			await navigator.clipboard.writeText(url);
-			status.set("Success!");
+			status.set("success", "Success!");
 		}
 		catch (err) {
 			console.error(err);
-			status.set(`Failed (${err instanceof Error ? err.message : "Unknown error"})`);
+			status.set("error", `${err instanceof Error ? err.message : "Unknown error"}`);
 		}
 	};
 
