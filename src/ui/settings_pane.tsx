@@ -3,6 +3,7 @@ import {type Component, type JSX} from "solid-js";
 import styles from "./row.module.css";
 import {code_encoded, state, update_state} from "./state";
 import {type WrappingMode} from "../constants";
+import {BookmarkletSize} from "./bookmarklet_size";
 
 export const SettingsPane: Component = () => {
 	const on_wrapping_mode_change: JSX.ChangeEventHandler<HTMLSelectElement, Event> = (ev) => {
@@ -26,6 +27,8 @@ export const SettingsPane: Component = () => {
 				</select>
 			</label>
 			<a href={code_encoded()} onClick={on_link_click}>bookmarklet</a>
+			<span class={styles.gap} />
+			<BookmarkletSize />
 		</div>
 	);
 };

@@ -32,7 +32,7 @@ export const ImportPane: Component = () => {
 		<div class={styles.row}>
 			<button onclick={on_paste_click}>Import from clipboard</button>
 			{status.node}
-			<span class={styles.gap}></span>
+			<span class={styles.gap} />
 			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/">GitHub</a>
 			<a target="_blank" href="https://github.com/redneb/bookmarklet-editor/blob/main/README.md">Help</a>
 		</div>
