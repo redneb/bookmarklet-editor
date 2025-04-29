@@ -29,13 +29,27 @@ function base64url_decode(string: string) {
 	return latin1_encode(atob(base64_string));
 }
 
+const code_text_prefix = "a";
+
+async function encode_code_text(code_text: string) {
+	const code_text_compressed = await compress_string(code_text);
+	return code_text_prefix + base64url_encode(code_text_compressed);
+}
+
+async function decode_code_text(param_value: string) {
+	if (!param_value.startsWith(code_text_prefix))
+		throw new Error("Invalid parameter value for code text");
+	const code_text_compressed = base64url_decode(param_value.slice(code_text_prefix.length));
+	return decompress_string(code_text_compressed);
+}
+
 export interface UrlParams {
 	code_text: string;
 	wrapping_mode: WrappingMode;
 }
 
 export async function encode_url_params(params: UrlParams) {
-	const code_text_compressed = await compress_string(params.code_text);
+	const c_param = await encode_code_text(params.code_text);
 	let w_param: string;
 	switch (params.wrapping_mode) {
 		case "block":
@@ -49,7 +63,7 @@ export async function encode_url_params(params: UrlParams) {
 			break;
 	}
 	const search_params = new URLSearchParams([
-		["c", base64url_encode(code_text_compressed)],
+		["c", c_param],
 		["w", w_param],
 	]);
 	return `#${search_params.toString()}`;
@@ -59,10 +73,8 @@ export async function decode_url_params(hash: string): Promise<Partial<UrlParams
 	const search_params = new URLSearchParams(hash.replace(/^#/, ""));
 	let code_text: string | undefined;
 	const c_param = search_params.get("c");
-	if (c_param) {
-		const code_text_compressed = base64url_decode(c_param);
-		code_text = await decompress_string(code_text_compressed);
-	}
+	if (c_param)
+		code_text = await decode_code_text(c_param);
 	let wrapping_mode: WrappingMode | undefined;
 	switch (search_params.get("w")) {
 		case "b":
