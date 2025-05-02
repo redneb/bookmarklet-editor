@@ -1,8 +1,8 @@
-import {type Component, type JSX} from "solid-js";
+import {For, type Component, type JSX} from "solid-js";
 
 import styles from "./row.module.css";
 import {code_encoded, state, update_state} from "./state";
-import {type WrappingMode} from "../constants";
+import {wrapping_modes, type WrappingMode} from "../constants";
 import {BookmarkletSize} from "./bookmarklet_size";
 
 export const SettingsPane: Component = () => {
@@ -21,9 +21,9 @@ export const SettingsPane: Component = () => {
 			<label class={styles.row}>
 				Code wrapper:
 				<select value={state.wrapping_mode} onchange={on_wrapping_mode_change}>
-					<option value="block">Block (recommended)</option>
-					<option value="function">Function (for older browsers)</option>
-					<option value="arrow_function">Arrow function</option>
+					<For each={Object.entries(wrapping_modes)}>
+						{([mode, info]) => <option value={mode}>{info.description}</option>}
+					</For>
 				</select>
 			</label>
 			<a href={code_encoded()} onClick={on_link_click}>bookmarklet</a>

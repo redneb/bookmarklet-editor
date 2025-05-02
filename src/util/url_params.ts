@@ -1,4 +1,4 @@
-import {type WrappingMode} from "../constants";
+import {wrapping_modes, type WrappingMode} from "../constants";
 import {compress_string, decompress_string} from "./compress";
 
 const chunk_size = 64 * 1024;
@@ -50,24 +50,17 @@ export interface UrlParams {
 
 export async function encode_url_params(params: UrlParams) {
 	const c_param = await encode_code_text(params.code_text);
-	let w_param: string;
-	switch (params.wrapping_mode) {
-		case "block":
-			w_param = "b";
-			break;
-		case "function":
-			w_param = "f";
-			break;
-		case "arrow_function":
-			w_param = "a";
-			break;
-	}
+	const w_param = wrapping_modes[params.wrapping_mode].url_param;
 	const search_params = new URLSearchParams([
 		["c", c_param],
 		["w", w_param],
 	]);
 	return `#${search_params.toString()}`;
 }
+
+const url_param_to_wrapping_mode = new Map(
+	Object.entries(wrapping_modes).map(([mode, info]) => [info.url_param, mode as WrappingMode]),
+);
 
 export async function decode_url_params(hash: string): Promise<Partial<UrlParams>> {
 	const search_params = new URLSearchParams(hash.replace(/^#/, ""));
@@ -76,17 +69,9 @@ export async function decode_url_params(hash: string): Promise<Partial<UrlParams
 	if (c_param)
 		code_text = await decode_code_text(c_param);
 	let wrapping_mode: WrappingMode | undefined;
-	switch (search_params.get("w")) {
-		case "b":
-			wrapping_mode = "block";
-			break;
-		case "f":
-			wrapping_mode = "function";
-			break;
-		case "a":
-			wrapping_mode = "arrow_function";
-			break;
-	}
+	const w_param = search_params.get("w");
+	if (w_param)
+		wrapping_mode = url_param_to_wrapping_mode.get(w_param);
 	return {
 		code_text,
 		wrapping_mode,

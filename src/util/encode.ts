@@ -1,24 +1,7 @@
-import {type WrappingMode} from "../constants";
-import {unreachable} from "./unreachable";
+import {wrapping_modes, type WrappingMode} from "../constants";
 
 export function encode_code(code_str: string, wrapping_mode: WrappingMode) {
-	let wrapped_code_str;
-	switch (wrapping_mode) {
-		case "block": {
-			wrapped_code_str = `{\n${code_str}\n}`;
-			break;
-		}
-		case "function": {
-			wrapped_code_str = `(function(){\n${code_str}\n})()`;
-			break;
-		}
-		case "arrow_function": {
-			wrapped_code_str = `(()=>{\n${code_str}\n})()`;
-			break;
-		}
-		default:
-			unreachable(wrapping_mode);
-	}
+	const wrapped_code_str = wrapping_modes[wrapping_mode].wrap(code_str);
 	const url = "javascript:" + encodeURIComponent(wrapped_code_str);
 	return url;
 }
@@ -26,27 +9,25 @@ export function encode_code(code_str: string, wrapping_mode: WrappingMode) {
 interface ParseResult {
 	code_str: string;
 	mode: WrappingMode | undefined;
-	warning: string | undefined;
+	warning?: string;
 }
 
 export function parse_bookmarklet_url(url: string): ParseResult {
 	if (!url.startsWith("javascript:"))
 		throw new Error("Not a javascript url");
 	const wrapped_code_str = decodeURIComponent(url.substring("javascript:".length));
-	const m1 = /^\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*$/s.exec(wrapped_code_str);
-	const m2 = /^\s*\(\s*function\s*\(\s*\)\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*\)\s*\(\s*\)\s*$/s.exec(wrapped_code_str);
-	const m3 = /^\s*\(\s*\(\s*\)\s*=>\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*\)\s*\(\s*\)\s*$/s.exec(wrapped_code_str);
-	const m = m1 || m2 || m3;
-	let code_str: string, warning: string | undefined;
-	if (m)
-		code_str = m[1]!;
-	else {
-		code_str = wrapped_code_str;
-		warning = "Could not find wrapper function, imported raw code";
+	for (const [mode, info] of Object.entries(wrapping_modes)) {
+		const m = info.parse_regex.exec(wrapped_code_str);
+		if (m) {
+			return {
+				code_str: m[1]!,
+				mode: mode as WrappingMode,
+			};
+		}
 	}
 	return {
-		code_str,
-		mode: m1 ? "block" : m2 ? "function" : m3 ? "arrow_function" : undefined,
-		warning,
+		code_str: wrapped_code_str,
+		mode: undefined,
+		warning: "Could not find wrapper function, imported raw code",
 	};
 }
