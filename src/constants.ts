@@ -2,6 +2,7 @@ export type WrappingMode =
 	| "block"
 	| "function"
 	| "arrow_function"
+	| "raw"
 
 export const default_wrapping_mode: WrappingMode = "block";
 
@@ -31,5 +32,11 @@ export const wrapping_modes: Record<WrappingMode, WrappingModeInfo> = {
 		url_param: "a",
 		parse_regex: /^\s*\(\s*\(\s*\)\s*=>\s*\{(?:[\t ]*\n)?(.*?)(?:\n[\t ]*)?\}\s*\)\s*\(\s*\)\s*$/s,
 		wrap: code_text => `(()=>{\n${code_text}\n})()`,
+	},
+	raw: {
+		description: "No wrapping, raw code",
+		url_param: "r",
+		parse_regex: /^(.*)$/s,
+		wrap: code_text => code_text,
 	},
 };

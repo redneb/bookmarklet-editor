@@ -1,7 +1,6 @@
 import {type Component} from "solid-js";
 
 import styles from "./row.module.css";
-import {default_wrapping_mode} from "../constants";
 import {read_clipboard} from "../util/read_clipboard";
 import {parse_bookmarklet_url} from "../util/encode";
 import {update_state} from "./state";
@@ -18,7 +17,7 @@ export const ImportPane: Component = () => {
 			const parsed = parse_bookmarklet_url(bookmarklet_url);
 			status.set("success", parsed.warning ?? "Success!");
 			update_state((state) => {
-				state.wrapping_mode = parsed.mode ?? default_wrapping_mode;
+				state.wrapping_mode = parsed.mode;
 			});
 			set_code_text(parsed.code_str);
 		}

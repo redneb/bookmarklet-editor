@@ -8,7 +8,7 @@ export function encode_code(code_str: string, wrapping_mode: WrappingMode) {
 
 interface ParseResult {
 	code_str: string;
-	mode: WrappingMode | undefined;
+	mode: WrappingMode;
 	warning?: string;
 }
 
@@ -25,9 +25,6 @@ export function parse_bookmarklet_url(url: string): ParseResult {
 			};
 		}
 	}
-	return {
-		code_str: wrapped_code_str,
-		mode: undefined,
-		warning: "Could not find wrapper function, imported raw code",
-	};
+	alert("Could not detect wrapping mode, this should not happen");
+	throw new Error("Could not detect wrapping mode");
 }
