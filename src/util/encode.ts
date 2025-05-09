@@ -12,10 +12,16 @@ interface ParseResult {
 	warning?: string;
 }
 
-export function parse_bookmarklet_url(url: string): ParseResult {
+export function parse_bookmarklet_url(url: string, force_raw: boolean): ParseResult {
 	if (!url.startsWith("javascript:"))
 		throw new Error("Not a javascript url");
 	const wrapped_code_str = decodeURIComponent(url.substring("javascript:".length));
+	if (force_raw) {
+		return {
+			code_str: wrapped_code_str,
+			mode: "raw",
+		};
+	}
 	for (const [mode, info] of Object.entries(wrapping_modes)) {
 		const m = info.parse_regex.exec(wrapped_code_str);
 		if (m) {
